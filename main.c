@@ -19,7 +19,7 @@ void list_todos() {
 
     Todo todo;
     while (fread(&todo, sizeof(Todo), 1, file)) {
-        printf("ID: %d | description: %s", todo.id, todo.description);
+        printf("ID: %d | description: %s\n", todo.id, todo.description);
     }
     fclose(file);
 }
@@ -35,8 +35,9 @@ void add_todo(const char *description) {
     static int id_counter = 1;
     todo.id = id_counter++;
     strncpy(todo.description, description, TODO_LENGTH);
+    fwrite(&todo, sizeof(Todo), 1, file);
     fclose(file);
-    printf("Added todo: ID=%d | %s", todo.id, todo.description);
+    printf("Added todo: ID=%d | %s\n", todo.id, todo.description);
 
 }
 
@@ -49,6 +50,11 @@ int main(int argc, char *argv[])
     if (argc < 2) {
         printf("Usage: todo <command> [agruments]\n");
         return 1;
+    }
+    if (strcmp(argv[1], "list") == 0) {
+        list_todos();
+    } else if (strcmp(argv[1], "add") == 0 && argc == 3) {
+        add_todo(argv[2]);
     }
     return 0;
 }
