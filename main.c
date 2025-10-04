@@ -11,17 +11,16 @@ typedef struct {
   char description[TODO_LENGTH];
 } Todo;
 
+Todo todo;
+
 void list_todos() {
   FILE *file = fopen(TODO_FILE, "r");
-
-  //   int id = 0;
 
   if (!file) {
     printf("No todos found\n");
     return;
   }
 
-  Todo todo;
   while (fread(&todo, sizeof(Todo), 1, file)) {
     id++;
     printf("%d. %s\n", id, todo.description);
@@ -36,7 +35,6 @@ void add_todo(const char *description) {
     return;
   }
 
-  Todo todo;
   strncpy(todo.description, description, TODO_LENGTH);
   fwrite(&todo, sizeof(Todo), 1, file);
   // fwrite("\n", sizeof(char), 1, file);
@@ -54,14 +52,12 @@ void delete_todo() {
 
   Todo todos[100];
 
-  int todoCount = 0;
-
-  while (fread(&todos[todoCount], sizeof(Todo), 1, file)) {
-    todoCount++;
+  while (fread(&todos[id], sizeof(Todo), 1, file)) {
+    id++;
   }
   fclose(file);
 
-  if (todoCount == 0) {
+  if (id == 0) {
     printf("No todos to remove\n");
     return;
   }
@@ -72,18 +68,18 @@ void delete_todo() {
     return;
   }
 
-  int todoId;
+  int noteToDelete;
   printf("Enter ID of todo you want to delete: ");
-  scanf("%d", &todoId);
+  scanf("%d", &noteToDelete);
 
-  if (todoId < 1 || todoId > todoCount) {
+  if (noteToDelete < 1 || noteToDelete > id) {
     printf("Invalid todo ID\n");
     fclose(temp);
     return;
   }
 
-  for (int i = 0; i < todoCount; i++) {
-    if (i != todoId - 1) {
+  for (int i = 0; i < id; i++) {
+    if (i != noteToDelete - 1) {
       fwrite(&todos[i], sizeof(Todo), 1, temp);
     }
   }
