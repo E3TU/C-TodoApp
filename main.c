@@ -43,7 +43,8 @@ void add_todo(const char *description) {
   id++;
 }
 
-void delete_todo() {
+void delete_todo(const int *todoToRemove) {
+
   FILE *file = fopen(TODO_FILE, "r");
   if (!file) {
     printf("No todos to remove.\n");
@@ -68,18 +69,14 @@ void delete_todo() {
     return;
   }
 
-  int noteToDelete;
-  printf("Enter ID of todo you want to delete: ");
-  scanf("%d", &noteToDelete);
-
-  if (noteToDelete < 1 || noteToDelete > id) {
+  if (*todoToRemove < 1 || *todoToRemove > id) {
     printf("Invalid todo ID\n");
     fclose(temp);
     return;
   }
 
   for (int i = 0; i < id; i++) {
-    if (i != noteToDelete - 1) {
+    if (i != *todoToRemove - 1) {
       fwrite(&todos[i], sizeof(Todo), 1, temp);
     }
   }
@@ -100,8 +97,9 @@ int main(int argc, char *argv[]) {
     list_todos();
   } else if (strcmp(argv[1], "add") == 0 && argc == 3) {
     add_todo(argv[2]);
-  } else if (strcmp(argv[1], "delete") == 0 && argc == 2) {
-    delete_todo();
+  } else if (strcmp(argv[1], "delete") == 0 && argc == 3) {
+    int kurwa = atoi(argv[2]);
+    delete_todo(&kurwa);
   }
   return 0;
 }
