@@ -24,6 +24,8 @@ void create_config_file(char *path) {
 
   const char *username = getenv("USER");
 
+  const char additional[] = "todos/"; 
+
   if (home_dir == NULL) {
     perror("Error: Home environment variable isnt set");
     return;
@@ -51,6 +53,16 @@ void create_config_file(char *path) {
       } else {
         fprintf(file, "# This is the path for the todos:\n");
         fprintf(file, "\n");
+
+        if(path[strlen(path) - 1] == '/') {
+          printf("Path already ends with slash\n");
+        } else{
+          printf("Path didnt end with slash, added it\n");
+          strcat(path, "/");
+        }
+
+        strcat(path, additional);
+        
         fprintf(file, "%s", path);
         fclose(file);
         printf("File %s created successfully", file_path);
