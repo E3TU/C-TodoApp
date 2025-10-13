@@ -8,9 +8,6 @@
 
 int id;
 
-char default_path[256];
-
-
 typedef struct {
   char description[TODO_LENGTH];
 } Todo;
@@ -19,56 +16,68 @@ Todo todo;
 
 void create_config_file(char *path) {
 
-  printf("User input: %s\n", path);
-  const char *home_dir = getenv("HOME");
-
-  const char *username = getenv("USER");
-
-  const char additional[] = "todos/"; 
-
-  if (home_dir == NULL) {
-    perror("Error: Home environment variable isnt set");
-    return;
+  if (path == NULL) {
+    printf("Using default file path\n");
   } else {
+    const char *home_dir = getenv("HOME");
 
-    char dir_path[256];
+    // char default_path[256];
 
-    snprintf(dir_path, sizeof(dir_path), "%s/.config/c-todoapp", home_dir);
+    // snprintf(default_path, sizeof(default_path), "%s/Documents/todos",
+    // home_dir);
 
-    strcpy(default_path, dir_path);
+    // printf("default path is: %s\n", default_path);
 
-    if (mkdir(dir_path, 0700) == -1) {
-      perror("Error creating dir for config file");
+    // Check if home directory exists
+    if (home_dir == NULL) {
+      perror("Error: Home environment variable isnt set");
       return;
-    } else{
-      printf("Dir '%s' created successfully\n", dir_path);
+    } else {
 
-      char file_path[256];
-      snprintf(file_path, sizeof(file_path), "%s/config.conf", dir_path);
+      char dir_path[256];
 
-      FILE * file = fopen(file_path, "w");
-      if (file == NULL) {
-        perror("Error opening file");
+      // Path where to create directory
+      snprintf(dir_path, sizeof(dir_path), "%s/.config/c-todoapp", home_dir);
+
+      // Create directory for config file
+      if (mkdir(dir_path, 0700) == -1) {
+        perror("Error creating dir for config file");
         return;
       } else {
-        fprintf(file, "# This is the path for the todos:\n");
-        fprintf(file, "\n");
+        printf("Dir '%s' created successfully\n", dir_path);
 
-        if(path[strlen(path) - 1] == '/') {
-          printf("Path already ends with slash\n");
-        } else{
-          printf("Path didnt end with slash, added it\n");
-          strcat(path, "/");
+        char file_path[256];
+
+        const char filename[] = "todos/";
+
+        // Path where to create config file
+        snprintf(file_path, sizeof(file_path), "%s/config.conf", dir_path);
+
+        // Create config file
+        FILE *file = fopen(file_path, "w");
+        if (file == NULL) {
+          perror("Error opening file");
+          return;
+        } else {
+          fprintf(file, "# This is the path for the todos:\n");
+          fprintf(file, "\n");
+
+          if (path[strlen(path) - 1] != '/') {
+            strcat(path, "/");
+          }
+
+          strcat(path, filename);
+
+          fprintf(file, "%s", path);
+
+          printf("%s\n", path);
+
+          fclose(file);
+          printf("File %s created successfully", file_path);
+          return;
         }
-
-        strcat(path, additional);
-        
-        fprintf(file, "%s", path);
-        fclose(file);
-        printf("File %s created successfully", file_path);
         return;
       }
-      return;
     }
   }
 }
@@ -160,8 +169,12 @@ int main(int argc, char *argv[]) {
   } else if (strcmp(argv[1], "delete") == 0 && argc == 3) {
     int kurwa = atoi(argv[2]);
     delete_todo(&kurwa);
-  } else if (strcmp(argv[1], "init") == 0 && argc == 3) {
-    create_config_file(argv[2]);
+  } else if (strcmp(argv[1], "init") == 0) {
+    if (argc == 3) {
+      create_config_file(argv[2]);
+    } else {
+      create_config_file(NULL);
+    }
   }
   return 0;
 }
