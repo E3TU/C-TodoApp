@@ -16,68 +16,70 @@ Todo todo;
 
 void create_config_file(char *path) {
 
-  if (path == NULL) {
-    printf("Using default file path\n");
+  const char *home_dir = getenv("HOME");
+
+  // Check if home directory exists
+  if (home_dir == NULL) {
+    perror("Error: Home environment variable isnt set");
+    return;
   } else {
-    const char *home_dir = getenv("HOME");
 
-    // char default_path[256];
+    char dir_path[256];
 
-    // snprintf(default_path, sizeof(default_path), "%s/Documents/todos",
-    // home_dir);
+    // Path where to create directory
+    snprintf(dir_path, sizeof(dir_path), "%s/.config/c-todoapp", home_dir);
 
-    // printf("default path is: %s\n", default_path);
-
-    // Check if home directory exists
-    if (home_dir == NULL) {
-      perror("Error: Home environment variable isnt set");
+    // Create directory for config file
+    if (mkdir(dir_path, 0700) == -1) {
+      perror("Error creating dir for config file");
       return;
     } else {
+      printf("Dir '%s' created successfully\n", dir_path);
 
-      char dir_path[256];
+      char file_path[256];
 
-      // Path where to create directory
-      snprintf(dir_path, sizeof(dir_path), "%s/.config/c-todoapp", home_dir);
+      const char filename[] = "todos/";
 
-      // Create directory for config file
-      if (mkdir(dir_path, 0700) == -1) {
-        perror("Error creating dir for config file");
+      // Path where to create config file
+      snprintf(file_path, sizeof(file_path), "%s/config.conf", dir_path);
+
+      // Create config file
+      FILE *file = fopen(file_path, "w");
+      if (file == NULL) {
+        perror("Error opening file");
         return;
       } else {
-        printf("Dir '%s' created successfully\n", dir_path);
+        fprintf(file, "# This is the path for the todos:\n");
+        fprintf(file, "\n");
 
-        char file_path[256];
+        if (path == NULL) {
 
-        const char filename[] = "todos/";
+          char default_path[256];
 
-        // Path where to create config file
-        snprintf(file_path, sizeof(file_path), "%s/config.conf", dir_path);
+          snprintf(default_path, sizeof(default_path), "%s/Documents/%s", home_dir, filename);
 
-        // Create config file
-        FILE *file = fopen(file_path, "w");
-        if (file == NULL) {
-          perror("Error opening file");
-          return;
-        } else {
-          fprintf(file, "# This is the path for the todos:\n");
-          fprintf(file, "\n");
+          fprintf(file, "%s", default_path );
 
-          if (path[strlen(path) - 1] != '/') {
-            strcat(path, "/");
-          }
-
-          strcat(path, filename);
-
-          fprintf(file, "%s", path);
-
-          printf("%s\n", path);
-
+          printf("Using default file path\n");
           fclose(file);
-          printf("File %s created successfully", file_path);
           return;
         }
+
+        if (path[strlen(path) - 1] != '/') {
+          strcat(path, "/");
+        }
+
+        strcat(path, filename);
+
+        fprintf(file, "%s", path);
+
+        printf("%s\n", path);
+
+        fclose(file);
+        printf("File %s created successfully", file_path);
         return;
       }
+      return;
     }
   }
 }
