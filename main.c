@@ -14,6 +14,42 @@ typedef struct {
 
 Todo todo;
 
+void create_todos_file(char *path) {
+
+  printf("Create todos path: %s\n", path);
+
+  struct stat statbuf;
+
+  if (stat(path, &statbuf) == 0 && S_ISDIR(statbuf.st_mode)) {
+    printf("Directory exist\n");
+  } else {
+    printf("Directory doesnt exist\n");
+    if (mkdir(path, 0700) == -1) {
+      perror("Error creating dir for todos.txt\n");
+      return;
+    } else {
+      printf("Directory for todos.txt created successfully\n");
+
+      FILE *file;
+
+      strcat(path, "todos.txt");
+
+      file = fopen(path, "w");
+
+      if (file == NULL) {
+        printf("Error couldnt open file");
+        return;
+      }
+
+      fprintf(file, "Test 2");
+      fclose(file);
+      printf("create_todos: %s\n", path);
+
+      return;
+    }
+  }
+}
+
 void create_config_file(char *path) {
 
   const char *home_dir = getenv("HOME");
@@ -56,12 +92,18 @@ void create_config_file(char *path) {
 
           char default_path[256];
 
-          snprintf(default_path, sizeof(default_path), "%s/Documents/%s", home_dir, filename);
+          snprintf(default_path, sizeof(default_path), "%s/Documents/%s",
+                   home_dir, filename);
 
-          fprintf(file, "%s", default_path );
+          fprintf(file, "%s", default_path);
 
           printf("Using default file path\n");
           fclose(file);
+
+          path = default_path;
+
+          create_todos_file(path);
+
           return;
         }
 
@@ -76,7 +118,9 @@ void create_config_file(char *path) {
         printf("%s\n", path);
 
         fclose(file);
-        printf("File %s created successfully", file_path);
+        printf("File %s created successfully\n", file_path);
+
+        create_todos_file(path);
         return;
       }
       return;
