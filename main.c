@@ -14,6 +14,29 @@ typedef struct {
 
 Todo todo;
 
+void read_config_file() {
+  const char *home_dir = getenv("HOME");
+
+  char file_path[256];
+
+  // Path where to create directory
+  snprintf(file_path, sizeof(file_path), "%s/.config/c-todoapp/config.conf",
+           home_dir);
+
+  FILE *fptr;
+
+  fptr = fopen(file_path, "r");
+
+  char file_content[256];
+
+
+  // while (fgets(file_content, sizeof(file_content), fptr)) {
+  //   printf("%s", file_content);
+  // }
+
+  fclose(fptr);
+}
+
 void create_todos_file(char *path) {
 
   printf("Create todos path: %s\n", path);
@@ -43,7 +66,7 @@ void create_todos_file(char *path) {
 
       fprintf(file, "Test 2");
       fclose(file);
-      printf("create_todos: %s\n", path);
+      // printf("create_todos: %s\n", path);
 
       return;
     }
@@ -70,14 +93,14 @@ void create_config_file(char *path) {
       perror("Error creating dir for config file");
       return;
     } else {
-      printf("Dir '%s' created successfully\n", dir_path);
+      // printf("Dir '%s' created successfully\n", dir_path);
 
       char file_path[256];
 
-      const char filename[] = "todos/";
-
       // Path where to create config file
       snprintf(file_path, sizeof(file_path), "%s/config.conf", dir_path);
+
+      const char filename[] = "todos/";
 
       // Create config file
       FILE *file = fopen(file_path, "w");
@@ -104,6 +127,8 @@ void create_config_file(char *path) {
 
           create_todos_file(path);
 
+          read_config_file();
+
           return;
         }
 
@@ -121,6 +146,8 @@ void create_config_file(char *path) {
         printf("File %s created successfully\n", file_path);
 
         create_todos_file(path);
+        read_config_file();
+
         return;
       }
       return;
@@ -128,8 +155,8 @@ void create_config_file(char *path) {
   }
 }
 
-void list_todos() {
-  FILE *file = fopen(TODO_FILE, "r");
+void list_todos(char *path) {
+  FILE *file = fopen(path, "r");
 
   if (!file) {
     printf("No todos found\n");
@@ -209,7 +236,7 @@ int main(int argc, char *argv[]) {
     return 1;
   }
   if (strcmp(argv[1], "list") == 0) {
-    list_todos();
+    list_todos(NULL);
   } else if (strcmp(argv[1], "add") == 0 && argc == 3) {
     add_todo(argv[2]);
   } else if (strcmp(argv[1], "delete") == 0 && argc == 3) {
