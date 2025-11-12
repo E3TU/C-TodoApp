@@ -43,6 +43,7 @@ void create_todos_file(char *path) {
 
   struct stat statbuf;
 
+  // Check if directory exists and create one if it doesnt
   if (stat(path, &statbuf) == 0 && S_ISDIR(statbuf.st_mode)) {
     printf("Directory exist\n");
   } else {
@@ -64,6 +65,7 @@ void create_todos_file(char *path) {
         return;
       }
 
+      // Write to todos file
       fprintf(file, "Test 2");
       fclose(file);
       // printf("create_todos: %s\n", path);
@@ -111,6 +113,7 @@ void create_config_file(char *path) {
         fprintf(file, "# This is the path for the todos:\n");
         fprintf(file, "\n");
 
+        // Default path for todos
         if (path == NULL) {
 
           char default_path[256];
@@ -131,6 +134,7 @@ void create_config_file(char *path) {
 
           return;
         }
+        // User defined path for todos
 
         if (path[strlen(path) - 1] != '/') {
           strcat(path, "/");
@@ -156,7 +160,7 @@ void create_config_file(char *path) {
 }
 
 void list_todos(char *path) {
-  FILE *file = fopen(path, "r");
+  FILE *file = fopen(TODO_FILE, "r");
 
   if (!file) {
     printf("No todos found\n");
